@@ -1,8 +1,318 @@
-<UComboBox
-  Caption="Dil"
-  [ValueType]="${props.ValueType}"
-  [(ItemsSource)]="${props.Items}"
-  (SelectedValueChange)="ChangeSelectedValue($event)"
-  Property1="Default"
-  GroupCodeName="${props.GroupCode}"
-></UComboBox>
+<div [hidden]="Visibility == _visibilityType.Collapsed"
+		 [style.visibility]="Visibility == _visibilityType.Hidden ? 'collapse' : 'visible'"
+		 [ngClass]="{'small' : ControlStyle == _controlStyleType.Small, 'ToolTipComboBoxBorder' : ToolTipText}"
+		 kendoTooltip
+		 [attr.id]='UniqueComponentID'
+		 [tooltipClass]="ValidationErrorContent ? 'error' : ''"
+		 [showOn]="ValidationBehaviourType === _validationBehaviourTypes.Tooltip ? 'hover' : 'none'">
+	<div class="k-d-flex k-flex-row k-justify-content-between">
+		<UCaption [IsCaptionVisible]="IsCaptionVisible"
+							[Caption]="Caption"
+							[IsEnabled]="IsEnabled"
+							[InfoContent]="InfoContent"
+							[IsValueChanged]="IsValueChanged"
+							[ValueChangedTooltip]="ValueChangedTooltip">
+		</UCaption>
+
+		<div *ngIf="IsMultipleSelectionEnabled"
+				 [hidden]="!IsEnabled || IsReadOnly"
+				 class="clear-text-button"
+				 (click)="Clear()">
+			{{'UComboBox.Text-Clear' | translate}}
+		</div>
+	</div>
+
+	<div class="k-d-flex">
+        <span *ngIf="IconType?.Value !== ''"
+							class="{{IconType?.Value}} mr-2 "
+							[ngStyle]="{'color': IconColor?.Value}">
+        </span>
+		<kendo-combobox #combobox
+										*ngIf="Columns.length == 0"
+										[data]="ItemsSource"
+										[value]="SelectedItem"
+										[virtual]="VirtualSettings"
+										[clearButton]="IsEnabled && !IsMultipleSelectionEnabled"
+										[filterable]="IsFilterable"
+										(filterChange)="filterChange($event)"
+										(valueChange)="valueChange($event)"
+										(close)="OnClose($event)"
+										[attr.data-otomasyon-id]="UniqueComponentID"
+										(focus)="OnFocus()"
+										(blur)="OnBlur()"
+										[textField]="DisplayMemberPath ? DisplayMemberPath : ''"
+										[valueField]="valueFieldPath"
+										[popupSettings]="popupSettings"
+										[disabled]="!IsEnabled || IsReadOnly"
+										[allowCustom]="IsAllowedCustomValue"
+										[valueNormalizer]="ValueNormalizer"
+										[placeholder]="Placeholder"
+										[ngClass]="{ 'ng-invalid ng-touched': ValidationErrorContent, 'multiselect': IsMultipleSelectionEnabled}"
+										[title]="ValidationErrorContent ? ValidationErrorContent : ''"
+										[style.width.%]="100">
+			<kendo-combobox-messages [clearTitle]="ClearTooltipText"></kendo-combobox-messages>
+			<ng-template kendoPrefixTemplate *ngIf="PrefixIcon">
+				<div class="pl-4">
+					<UIcon [IconType]='PrefixIcon'
+								 Name="{{'icn' + UniqueComponentID}}"
+								 [IconColor]="PrefixIconColor"
+								 IconSize='Medium'></UIcon>
+				</div>
+			</ng-template>
+			<ng-template kendoDropDownListNoDataTemplate>
+				<h4>
+					<span class="k-icon k-i-warning"></span>
+					<br/><br/>
+					{{'UComboBox.Text-NoRecord' | translate}}
+				</h4>
+			</ng-template>
+
+			<ng-template kendoComboBoxItemTemplate let-dataItem>
+				<div [ngStyle]="getRowStyle(dataItem)" style="width: 100%"  style="display:flex;">
+					<input *ngIf="IsMultipleSelectionEnabled" type="checkbox"
+								 kendoCheckBox
+								 style="margin-right:5px; align-self:center;"
+								 [checked]="IsMultipleItemSelected(dataItem)"/>
+					<UIcon *ngIf="!IsMultipleSelectionEnabled"
+								 [IconType]='dataItem.IconType'
+								 Name="{{'icn' + UniqueComponentID}}"
+								 style="margin-right:5px; align-self:center;"
+								 [IconColor]="dataItem.IconColor"
+								 IconSize='Medium'></UIcon>
+
+					<span *ngIf="IsCircleBadgeVisible"
+								class="u-badge"
+								[style.backgroundColor]="dataItem.Color || '#FDC440'">
+				</span>
+
+
+					<label class="k-checkbox-label"
+								 [innerHtml]="dataItem[DisplayMemberPath]"></label>
+				</div>
+			</ng-template>
+		</kendo-combobox>
+
+		<kendo-multicolumncombobox #combobox
+															 *ngIf="Columns.length > 0"
+															 class="multiColumnCombobox"
+															 [data]="ItemsSource"
+															 [value]="SelectedItem"
+															 [style.width.%]="100"
+															 [virtual]="VirtualSettings"
+															 [clearButton]="IsEnabled && !IsMultipleSelectionEnabled"
+															 [filterable]="IsFilterable"
+															 (filterChange)="filterChange($event)"
+															 [attr.data-otomasyon-id]="UniqueComponentID"
+															 (valueChange)="valueChange($event)"
+															 (close)="OnClose($event)"
+															 (open)="OnOpen($event)"
+															 (focus)="OnFocus()"
+															 (blur)="OnBlur()"
+															 [textField]="DisplayMemberPath ? DisplayMemberPath : ''"
+															 [valueField]="valueFieldPath"
+															 [popupSettings]="multiPopupSettings"
+															 [disabled]="!IsEnabled || IsReadOnly"
+															 [allowCustom]="IsAllowedCustomValue"
+															 [valueNormalizer]="ValueNormalizer"
+															 [placeholder]="Placeholder"
+															 [title]="ValidationErrorContent ? ValidationErrorContent : ''"
+															 [ngClass]="{ 'ng-invalid ng-touched': ValidationErrorContent ,
+								   				'multiColumnCombobox-text-right' : SelectedItem && IsCurrency,
+								   				'multiselect': IsMultipleSelectionEnabled}"
+		>
+			<kendo-combobox-messages [clearTitle]="ClearTooltipText"></kendo-combobox-messages>
+			<ng-template kendoPrefixTemplate *ngIf="PrefixIcon" let-dataItem>
+				<div class="pl-4">
+					{{dataItem.IconType}}
+					<UIcon [IconType]='dataItem.IconType'
+								 Name="{{'icn' + UniqueComponentID}}"
+								 [IconColor]="dataItem.IconColor"
+								 IconSize='Medium'></UIcon>
+				</div>
+			</ng-template>
+			<ng-template kendoMultiColumnComboBoxNoDataTemplate>
+				<h4>
+					<span class="k-icon k-i-warning"></span>
+					<br/><br/>
+					{{'UComboBox.Text-NoRecord' | translate}}
+				</h4>
+			</ng-template>
+
+			<kendo-combobox-column *ngIf="IsMultipleSelectionEnabled"
+														 width="35">
+				<ng-template kendoMultiColumnComboBoxColumnHeaderTemplate>
+					<input type="checkbox"
+								 kendoCheckBox
+								 [checked]="SelectedItems?.length > 0 && SelectedItems?.length === ItemsSource?.length"
+								 (change)="SelectAll($event)"/>
+				</ng-template>
+				<ng-template kendoMultiColumnComboBoxColumnCellTemplate let-dataItem>
+					<input type="checkbox"
+								 kendoCheckBox
+								 [checked]="IsMultipleItemSelected(dataItem)"/>
+				</ng-template>
+			</kendo-combobox-column>
+
+			<kendo-combobox-column *ngIf="!IsMultipleSelectionEnabled && HasIconAllRows"
+														 width="35">
+				<ng-template kendoMultiColumnComboBoxColumnCellTemplate let-dataItem>
+					<UIcon [IconType]='dataItem.IconType'
+								 Name="{{'icn' + UniqueComponentID}}"
+								 [IconColor]="dataItem.IconColor"
+								 IconSize='Medium'></UIcon>
+				</ng-template>
+			</kendo-combobox-column>
+
+			<kendo-combobox-column *ngFor="let column of Columns"
+														 [field]="column.ColumnName"
+														 [title]="column.Header ? column.Header : ' '"
+														 [width]="column.Width ? column.Width : '150'"
+														 [style]="column.Style"
+														 [headerStyle]="column.Style"
+			>
+				<ng-template kendoMultiColumnComboBoxColumnCellTemplate let-dataItem>
+					<div class="kendoMultiColumnItem" style="width: 100%" [ngStyle]="getRowStyle(dataItem) "
+							 *ngIf="column.ExpressionCollection.Expressions.length > 0; then withexpression; else noexpression">
+					</div>
+
+					<ng-template #withexpression>
+						<div *ngIf="column.ParameterGroup; then callfunction else nofunction"></div>
+						<ng-template #callfunction>
+							<div *ngFor="let expression of column.ExpressionCollection.Expressions">
+								<div
+									[style.color]="Remarkable && remarkableItems.indexOf(dataItem) !== -1 ? 'red': 'black'"
+									[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0"
+									*ngIf="CompareExpressionCondition(dataItem[column.ColumnName], expression.Value, expression.Condition)"
+									[ngStyle]="{'color': expression.MatchedCellForegroundColor?.Value}">
+									<span
+										[innerHtml]="getParameterValue(column, dataItem[column.ColumnName]) | columnFormat: column.ColumnFormat"></span>
+								</div>
+								<span
+									[style.color]="Remarkable && remarkableItems.indexOf(dataItem) !== -1 ? 'red': 'black'"
+									[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0"
+									*ngIf="NotInAnyCondition(dataItem[column.ColumnName], column.ExpressionCollection.Expressions)">
+									{{ getParameterValue(column, dataItem[column.ColumnName]) | columnFormat:
+									column.ColumnFormat }}
+								</span>
+							</div>
+						</ng-template>
+						<ng-template #nofunction>
+							<div *ngFor="let expression of column.ExpressionCollection.Expressions">
+								<div
+									[style.color]="Remarkable && remarkableItems.indexOf(dataItem) !== -1 ? 'red': 'black'"
+									[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0"
+									*ngIf="expression.MatchedRowColor && CompareExpressionCondition(dataItem[column.ColumnName], expression.Value, expression.Condition)">
+									<div class="matchedRowColor-{{expression._matchedRowColorName}}"></div>
+								</div>
+								<div
+									[style.color]="Remarkable && remarkableItems.indexOf(dataItem) !== -1 ? 'red': 'black'"
+									[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0"
+									*ngIf="CompareExpressionCondition(dataItem[column.ColumnName], expression.Value, expression.Condition)"
+									[ngStyle]="{'color': expression.MatchedCellForegroundColor?.Value}">
+									<div [style.color]="CompareExpressionCondition(dataItem[column.ColumnName], expression.Value, expression.Condition) ?
+						                                 expression.MatchedCellForegroundColor?.Value : DefaultComboColumnName.Value">
+										<div
+											*ngIf="expression.MatchedCellType == _matchedCellTypes.IconOnly">
+											<span *ngIf="expression.MatchedCellIcon"
+														[ngClass]="[expression.MatchedCellIcon.Value]">
+											</span>
+										</div>
+										<div
+											*ngIf="expression.MatchedCellType == _matchedCellTypes.TextAndIcon">
+											<span *ngIf="expression.MatchedCellIcon"
+														[ngClass]="[expression.MatchedCellIcon.Value]">
+												{{dataItem[column.ColumnName]}}
+											</span>
+										</div>
+										<div
+											*ngIf="!(expression.MatchedCellType == _matchedCellTypes.IconOnly || expression.MatchedCellType == _matchedCellTypes.TextAndIcon)">
+											<span
+												[innerHtml]="dataItem[column.ColumnName] | columnFormat: column.ColumnFormat"></span>
+										</div>
+									</div>
+								</div>
+								<div *ngIf="NotInAnyCondition(dataItem[column.ColumnName], column.ExpressionCollection.Expressions)">
+									<span [innerHtml]="dataItem[column.ColumnName] | columnFormat: column.ColumnFormat"></span>
+								</div>
+							</div>
+						</ng-template>
+					</ng-template>
+
+					<ng-template #noexpression>
+						<div *ngIf="column.ParameterGroup; then callfunction else nofunction"></div>
+						<ng-template #callfunction>
+							<span
+								kendoTooltip
+								[title]="!column.IsVisibleTooltip ? '' : getParameterValue(column, dataItem[column.ColumnName]) | columnFormat: column.ColumnFormat"
+								[style.color]="Remarkable && remarkableItems.indexOf(dataItem) !== -1 ? 'red': 'black'"
+								[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0">
+								{{ getParameterValue(column, dataItem[column.ColumnName]) | columnFormat: column.ColumnFormat }}
+							</span>
+						</ng-template>
+
+						<ng-template #nofunction>
+							<span
+								kendoTooltip
+								[title]="!column.IsVisibleTooltip ? '' : dataItem[column.ColumnName] | columnFormat: column.ColumnFormat"
+								[style.color]="Remarkable && remarkableItems.indexOf(dataItem)  !== -1 ? 'red': 'black'"
+								[style.opacity]="opacityItems && opacityItems.indexOf(dataItem) !== -1 ? 0.5 : 1.0">
+								{{ dataItem[column.ColumnName] | columnFormat: column.ColumnFormat }}
+							</span>
+						</ng-template>
+					</ng-template>
+				</ng-template>
+			</kendo-combobox-column>
+		</kendo-multicolumncombobox>
+
+		<div *ngIf="ToolTipText" [ngStyle]="{'background-color': '#e4e7eb', 'border-radius':'0px 4px 4px 0px'}">
+			<div class="info-tooltip" style="display: flex; height: 100%; align-items: center; padding: 0px 0.5rem;">
+				<ng-template #templateTooltip let-anchor>
+					<span [innerHTML]="ToolTipText"> </span>
+				</ng-template>
+				<div kendoTooltip [tooltipTemplate]="templateTooltip" filter="span" style="padding: 0.1rem">
+					<span class="far fa-exclamation-circle"
+								style="font-size: 1.5rem; color:#f44336">
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<ng-container *ngTemplateOutlet="iconButtons">
+		</ng-container>
+	</div>
+
+	<small *ngIf="ValidationBehaviourType === _validationBehaviourTypes.None && ValidationErrorContent && IsValidationErrorContentVisible"
+				 class="validation-error-message">
+		{{ValidationErrorContent}}
+	</small>
+
+	<ng-template #iconButtons>
+		<button *ngIf="IconButton1Visibility === _visibilityType.Visible"
+						kendoButton
+						class="r-icon-btn"
+						iconClass="{{IconButton1Type.Value}}"
+						[matTooltipClass]="'r-icon-btn-tooltip'"
+						[matTooltipDisabled]="!IconButton1TooltipEnabled"
+						[matTooltip]="IconButton1TooltipText"
+						[matTooltipPosition]="'above'"
+						[matTooltipShowDelay]="0"
+						[matTooltipHideDelay]="0"
+						(click)="OnClickIconButton(1)">
+
+		</button>
+		<button *ngIf="IconButton2Visibility === _visibilityType.Visible"
+						kendoButton
+						class="r-icon-btn"
+						iconClass="{{IconButton2Type.Value}}"
+						[matTooltipClass]="'r-icon-btn-tooltip'"
+						[matTooltipDisabled]="!IconButton2TooltipEnabled"
+						[matTooltip]="IconButton2TooltipText"
+						[matTooltipPosition]="'above'"
+						[matTooltipShowDelay]="0"
+						[matTooltipHideDelay]="0"
+						(click)="OnClickIconButton(2)">
+		</button>
+	</ng-template>
+
+</div>
+
