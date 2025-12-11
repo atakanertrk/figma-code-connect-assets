@@ -1,0 +1,116 @@
+<div [visibility]="Visibility"
+	 [ngClass]="{ 'small': ControlStyle == _controlStyleType.Small }"
+	 kendoTooltip
+	 [tooltipClass]="ValidationErrorContent ? 'error' : ''"
+	 [showOn]="ValidationBehaviourType === _validationBehaviourTypes.Tooltip ? 'hover' : 'none'">
+	<UCaption [IsCaptionVisible]="IsCaptionVisible"
+			  [Caption]="Caption"
+			  [IsEnabled]="IsEnabled"
+			  [InfoContent]="InfoContent"
+			  [IsValueChanged]="IsValueChanged"
+			  [ValueChangedTooltip]="ValueChangedTooltip">
+	</UCaption>
+
+	<div class="k-d-flex k-flex-row relative">
+        <span *ngIf="IconType"
+			  class="{{IconType.Value}} u-textbox-icon"
+			  [ngClass]="{'right' : IconHorizontalAlignment == HorizontalAlignments.Right, 'left' : IconHorizontalAlignment == HorizontalAlignments.Left}"
+			  [ngStyle]="{'color': IconColor?.Value}">
+        </span>
+
+		<div class="k-d-flex k-flex-row relative"
+			 style="width: 100%;">
+			<input #textboxid
+				   kendoTextBox
+				   [attr.data-otomasyon-id]="UniqueComponentID + 'UTextBox'"
+				   [id]="UniqueComponentID + 'UTextBox'"
+				   [disabled]="!IsEnabled || IsReadOnly"
+				   [attr.MinLength]="MinLength"
+				   [attr.MaxLength]="MaxLength"
+				   [ngModel]="Text"
+				   [placeholder]="Placeholder ? Placeholder : ''"
+				   [style.text-transform]="StrCaseStyle"
+				   [autocomplete]="IsAutoComplete ? 'on' : 'off'"
+				   [attr.type]="IsPasswordTemp ? 'password' : Type"
+				   [ngClass]="{ 'ng-invalid ng-touched': ValidationErrorContent,
+				   'pl-32' :  IconHorizontalAlignment == HorizontalAlignments.Left,
+				   'pr-32' : IconHorizontalAlignment == HorizontalAlignments.Right,
+				   'icon-padding' : IconType !== DEFAULT_ICON_TYPE,
+				   'inside-btn': IsPassword || IsDialogEnabled,
+				   'read-only-text': IsReadOnly}"
+				   class="{{Class}} k-flex-grow {{IsShowFullText ? 'text-overflow-unset':''}}"
+				   (ngModelChange)="onTextChange($event)"
+				   (keypress)="keyDown($event)"
+				   (keydown.Tab)="keyDown($event)"
+				   (paste)="onPaste($event)"
+				   (input)="onInput($event)"
+				   [title]="ValidationErrorContent"
+				   [attr.spellcheck]="IsSpellCheckEnabled">
+
+			<button kendoButton
+					class="password-eye-button"
+					[attr.data-otomasyon-id]="UniqueComponentID + 'PwdEyeButton'"
+					*ngIf="IsPassword"
+					(click)="IsPasswordTemp=!IsPasswordTemp">
+				<span class="{{ IsPasswordTemp ? 'fal fa-eye-slash' : 'fal fa-eye' }}"></span>
+			</button>
+
+			<button kendoButton
+					[attr.data-otomasyon-id]="UniqueComponentID + 'DialogButton'"
+					*ngIf="IsDialogEnabled"
+					[disabled]="!IsEnabled"
+					(click)="onClick()"
+					class="textbox-dialog-button">
+				<span class="k-icon k-i-more-horizontal"></span>
+			</button>
+
+			<!-- AutoCompleteList -->
+			<div *ngIf="filterACL.length > 0"
+				 class="autocomplete-list"
+				 (mousedown)="$event.preventDefault()">
+				<div *ngFor="let item of filterACL; let i = index"
+					 class="autocomplete-list-item"
+					 [class.selected]="i === aclSelectedIndex"
+					 (mousedown)="$event.preventDefault(); selectAutoCompleteListItem(item)">
+					{{item}}
+				</div>
+			</div>
+			<!-- AutoCompleteList -->
+
+		</div>
+
+		<button *ngIf="IconButton1Visibility === _visibilityType.Visible"
+				kendoButton
+				class="r-icon-btn"
+				[attr.data-otomasyon-id]="UniqueComponentID + 'IconButton'"
+				iconClass="{{IconButton1Type?.Value}}"
+				[matTooltipClass]="'r-icon-btn-tooltip'"
+				[matTooltipDisabled]="!IconButton1TooltipEnabled"
+				[matTooltip]="IconButton1TooltipText"
+				[matTooltipPosition]="'above'"
+				[matTooltipShowDelay]="0"
+				[matTooltipHideDelay]="0"
+				(click)="OnClickIconButton(1)">
+		</button>
+		<button *ngIf="IconButton2Visibility === _visibilityType.Visible"
+				kendoButton
+				[attr.data-otomasyon-id]="UniqueComponentID + 'TooltipButton'"
+				class="r-icon-btn"
+				iconClass="{{IconButton2Type?.Value}}"
+				[matTooltipClass]="'r-icon-btn-tooltip'"
+				[matTooltipDisabled]="!IconButton2TooltipEnabled"
+				[matTooltip]="IconButton2TooltipText"
+				[matTooltipPosition]="'above'"
+				[matTooltipShowDelay]="0"
+				[matTooltipHideDelay]="0"
+				(click)="OnClickIconButton(2)">
+		</button>
+	</div>
+
+	<small *ngIf="ValidationBehaviourType === _validationBehaviourTypes.None && ValidationErrorContent && IsValidationErrorContentVisible"
+		   class="validation-error-message">
+		{{ValidationErrorContent}}
+	</small>
+</div>
+
+<UKeyboard *ngIf="IsVisibleKeyboard" [IsVisibleKeyboard]='IsVisibleKeyboard' (ValueChange)='UKeyboardValueChange($event)' [KeyboardType]='KeyboardType'></UKeyboard>
