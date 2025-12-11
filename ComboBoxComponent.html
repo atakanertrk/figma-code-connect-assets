@@ -1,6 +1,23 @@
-<UComboBox 
-            Caption="Dil" 
-            [ValueType]="ValueType"
-            [(ItemsSource)]="Items"
-            (SelectedValueChange)="ChangeSelectedValue($event)">
-</UComboBox>
+import { connect } from "@figma/code-connect";
+
+connect({
+  componentId: "figma://component/1:8",
+  name: "ComboBoxComponent",
+
+  properties: {
+    GroupCode: "string",
+    ValueType: "string",
+    Items: "array",
+  },
+
+  template: (props) => `
+<UComboBox
+  Caption="Dil"
+  [ValueType]="${props.ValueType}"
+  [(ItemsSource)]="${props.Items}"
+  (SelectedValueChange)="ChangeSelectedValue($event)"
+  Property1="Default"
+  GroupCodeName="${props.GroupCode}"
+></UComboBox>
+  `
+});
